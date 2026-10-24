@@ -1,20 +1,17 @@
-const express = require("express");
-const cookieParser = require("cookie-parser");
-const cors = require("cors");
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
 
 const app = express();
-
-app.use(
-  cors({
-    origin: process.env.CLIENT_ORIGIN || "http://localhost:3000",
-    credentials: true,
-  })
-);
+app.use(cors({ origin: process.env.FRONTEND_ORIGIN, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-app.get("/health", (_req, res) => {
-  res.json({ ok: true });
-});
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/inquiries', require('./routes/inquiries'));
+
+app.use((req, res) => res.status(404).json({ error: 'Route not found' }));
+app.use(require('./middleware/errorHandler'));
 
 module.exports = app;
