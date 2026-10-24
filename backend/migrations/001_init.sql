@@ -1,28 +1,25 @@
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  email TEXT NOT NULL UNIQUE,
+  email TEXT UNIQUE NOT NULL,
+  name TEXT NOT NULL,
   password_hash TEXT NOT NULL,
-  role TEXT NOT NULL CHECK (role IN ('staff', 'admin')),
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  role TEXT NOT NULL CHECK (role IN ('staff','admin'))
 );
 
-CREATE TABLE inquiries (
+CREATE TABLE IF NOT EXISTS inquiries (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  created_by UUID NOT NULL REFERENCES users (id),
   customer_name TEXT NOT NULL,
   contact TEXT NOT NULL,
   subject TEXT NOT NULL,
   description TEXT NOT NULL,
-  status TEXT NOT NULL DEFAULT 'new'
-    CHECK (status IN ('new', 'in_progress', 'resolved')),
-  version INTEGER NOT NULL DEFAULT 1,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  status TEXT NOT NULL DEFAULT 'new' CHECK (status IN ('new','in_progress','resolved')),
+  created_by UUID NOT NULL REFERENCES users(id),
+  version INT NOT NULL DEFAULT 1,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE INDEX inquiries_created_by_idx ON inquiries (created_by);
-CREATE INDEX inquiries_status_idx ON inquiries (status);
-CREATE INDEX inquiries_duplicate_lookup_idx
-  ON inquiries (created_by, contact, subject, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_inquiries_owner_status ON inquiries(created_by, status);
+CREATE INDEX IF NOT EXISTS idx_inquiries_created_at ON inquiries(created_at DESC);
