@@ -15,7 +15,9 @@ export default function InquiryListPage({ onSelectInquiry, onOpenCreate }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Debounce search input
+  // Overview stats counts
+  const [stats, setStats] = useState({ total: 0, new: 0, in_progress: 0, resolved: 0 });
+
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(searchTerm);
@@ -35,8 +37,17 @@ export default function InquiryListPage({ onSelectInquiry, onOpenCreate }) {
       });
       setInquiries(data.items);
       setTotal(data.total);
+
+      // Compute status breakdown from fetched list or all
+      if (statusFilter === 'all' && !debouncedSearch) {
+        const counts = { total: data.total, new: 0, in_progress: 0, resolved: 0 };
+        data.items.forEach((item) => {
+          if (counts[item.status] !== undefined) counts[item.status]++;
+        });
+        setStats(counts);
+      }
     } catch (err) {
-      setError(err.message || 'Failed to load inquiries');
+      setError(err.message || 'Failed to load inquiries. Ensure the backend server is running.');
     } finally {
       setLoading(false);
     }
@@ -62,36 +73,64 @@ export default function InquiryListPage({ onSelectInquiry, onOpenCreate }) {
 
   return (
     <div>
-      {/* Header bar */}
+      {/* Page Header */}
       <div
         style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: '1.5rem',
+          marginBottom: '1.75rem',
           flexWrap: 'wrap',
           gap: '1rem',
         }}
       >
         <div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Customer Inquiries</h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+          <h1 style={{ fontSize: '1.65rem', fontWeight: 700, letterSpacing: '-0.02em' }}>
+            Customer Inquiries
+          </h1>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: '0.2rem' }}>
             {user?.role === 'admin'
-              ? 'Admin view: Showing all inquiries across all staff'
-              : 'Staff view: Showing only inquiries created by you'}
+              ? '👑 Administrator workspace: Showing all customer inquiries across the organization'
+              : '👤 Staff workspace: Showing inquiries created and handled by you'}
           </p>
         </div>
 
         <button className="btn btn-primary" onClick={onOpenCreate}>
-          + New Inquiry
+          + Log New Inquiry
         </button>
       </div>
 
-      {/* Filter and Search toolbar */}
+      {/* Summary Stat Cards */}
+      <div className="stats-grid">
+        <div className="stat-card">
+          <span className="stat-title">Total Records</span>
+          <span className="stat-value">{stats.total || total}</span>
+        </div>
+        <div className="stat-card" style={{ borderLeft: '4px solid var(--primary)' }}>
+          <span className="stat-title">New Inquiries</span>
+          <span className="stat-value" style={{ color: 'var(--primary)' }}>
+            {stats.new}
+          </span>
+        </div>
+        <div className="stat-card" style={{ borderLeft: '4px solid var(--warning)' }}>
+          <span className="stat-title">In Progress</span>
+          <span className="stat-value" style={{ color: 'var(--warning)' }}>
+            {stats.in_progress}
+          </span>
+        </div>
+        <div className="stat-card" style={{ borderLeft: '4px solid var(--success)' }}>
+          <span className="stat-title">Resolved</span>
+          <span className="stat-value" style={{ color: 'var(--success)' }}>
+            {stats.resolved}
+          </span>
+        </div>
+      </div>
+
+      {/* Filter and Search Bar */}
       <div
         className="card"
         style={{
-          padding: '1rem',
+          padding: '1rem 1.25rem',
           marginBottom: '1.25rem',
           display: 'flex',
           justifyContent: 'space-between',
@@ -100,7 +139,7 @@ export default function InquiryListPage({ onSelectInquiry, onOpenCreate }) {
           gap: '1rem',
         }}
       >
-        {/* Status Filter Tabs */}
+        {/* Filter Pills */}
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
           {[
             { id: 'all', label: 'All Inquiries' },
@@ -115,54 +154,145 @@ export default function InquiryListPage({ onSelectInquiry, onOpenCreate }) {
                 setPage(1);
               }}
               className={`btn ${statusFilter === tab.id ? 'btn-primary' : 'btn-secondary'}`}
-              style={{ padding: '0.4rem 0.85rem', fontSize: '0.8rem' }}
+              style={{ padding: '0.45rem 0.95rem', fontSize: '0.825rem' }}
             >
               {tab.label}
             </button>
           ))}
         </div>
 
-        {/* Search Input */}
-        <div style={{ width: '280px', maxWidth: '100%' }}>
+        {/* Search input with clear button */}
+        <div style={{ position: 'relative', width: '300px', maxWidth: '100%' }}>
           <input
             type="text"
             placeholder="Search name, subject, contact..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            style={{ paddingRight: searchTerm ? '2rem' : '0.85rem' }}
           />
+          {searchTerm && (
+            <button
+              type="button"
+              onClick={() => setSearchTerm('')}
+              style={{
+                position: 'absolute',
+                right: '8px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: 'var(--text-light)',
+                fontSize: '1rem',
+                cursor: 'pointer',
+              }}
+              title="Clear search"
+            >
+              ×
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Content */}
-      {error && <div className="alert alert-danger">{error}</div>}
+      {/* Error State */}
+      {error && (
+        <div className="alert alert-danger" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <strong>Error:</strong> {error}
+          </div>
+          <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem' }} onClick={loadInquiries}>
+            Retry
+          </button>
+        </div>
+      )}
 
+      {/* Loading Skeleton State */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
-          Loading inquiries...
+        <div className="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Subject & Description</th>
+                <th>Customer</th>
+                <th>Status</th>
+                <th>Version</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[1, 2, 3, 4, 5].map((i) => (
+                <tr key={i}>
+                  <td>
+                    <div className="skeleton skeleton-text" style={{ width: '60%' }} />
+                    <div className="skeleton skeleton-text" style={{ width: '85%' }} />
+                  </td>
+                  <td>
+                    <div className="skeleton skeleton-text" style={{ width: '50%' }} />
+                    <div className="skeleton skeleton-text" style={{ width: '70%' }} />
+                  </td>
+                  <td>
+                    <div className="skeleton skeleton-badge" />
+                  </td>
+                  <td>
+                    <div className="skeleton" style={{ width: '32px', height: '18px' }} />
+                  </td>
+                  <td>
+                    <div className="skeleton skeleton-text" style={{ width: '60%' }} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       ) : inquiries.length === 0 ? (
+        /* Empty State */
         <div
           className="card"
           style={{
             textAlign: 'center',
-            padding: '3.5rem 1.5rem',
+            padding: '4rem 1.5rem',
             color: 'var(--text-muted)',
           }}
         >
-          <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📋</div>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.25rem' }}>
-            No inquiries found
-          </h3>
-          <p style={{ fontSize: '0.875rem', marginBottom: '1.25rem' }}>
+          <div
+            style={{
+              width: '60px',
+              height: '60px',
+              borderRadius: '50%',
+              backgroundColor: '#f1f5f9',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 1.25rem',
+              fontSize: '1.75rem',
+            }}
+          >
+            📋
+          </div>
+          <h2 style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
+            {searchTerm || statusFilter !== 'all' ? 'No matching inquiries found' : 'No inquiries logged yet'}
+          </h2>
+          <p style={{ fontSize: '0.875rem', maxWidth: '420px', margin: '0 auto 1.5rem' }}>
             {searchTerm || statusFilter !== 'all'
-              ? 'Try adjusting your search terms or filter.'
-              : 'Get started by logging your first customer inquiry.'}
+              ? 'Try adjusting your search criteria or resetting the status filters to find what you are looking for.'
+              : 'Keep track of all customer requests, support issues, and service tickets in one central workspace.'}
           </p>
-          <button className="btn btn-primary" onClick={onOpenCreate}>
-            + Log New Inquiry
-          </button>
+
+          {searchTerm || statusFilter !== 'all' ? (
+            <button
+              className="btn btn-secondary"
+              onClick={() => {
+                setSearchTerm('');
+                setStatusFilter('all');
+              }}
+            >
+              Reset Filters
+            </button>
+          ) : (
+            <button className="btn btn-primary" onClick={onOpenCreate}>
+              + Log First Inquiry
+            </button>
+          )}
         </div>
       ) : (
+        /* Populated Table */
         <>
           <div className="table-container">
             <table>
@@ -171,7 +301,7 @@ export default function InquiryListPage({ onSelectInquiry, onOpenCreate }) {
                   <th>Subject & Details</th>
                   <th>Customer</th>
                   <th>Status</th>
-                  <th>Version</th>
+                  <th>Version (OCC)</th>
                   <th>Created</th>
                 </tr>
               </thead>
@@ -182,15 +312,14 @@ export default function InquiryListPage({ onSelectInquiry, onOpenCreate }) {
                     className="table-row-hover"
                     onClick={() => onSelectInquiry(inq.id)}
                   >
-                    <td>
-                      <div style={{ fontWeight: 600, color: 'var(--primary)', marginBottom: '0.2rem' }}>
+                    <td style={{ maxWidth: '340px' }}>
+                      <div style={{ fontWeight: 600, color: 'var(--primary)', marginBottom: '0.25rem' }}>
                         {inq.subject}
                       </div>
                       <div
                         style={{
                           color: 'var(--text-muted)',
-                          fontSize: '0.8rem',
-                          maxWidth: '380px',
+                          fontSize: '0.825rem',
                           whiteSpace: 'nowrap',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
@@ -200,8 +329,8 @@ export default function InquiryListPage({ onSelectInquiry, onOpenCreate }) {
                       </div>
                     </td>
                     <td>
-                      <div style={{ fontWeight: 500 }}>{inq.customerName}</div>
-                      <div style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>{inq.contact}</div>
+                      <div style={{ fontWeight: 600, color: 'var(--text-main)' }}>{inq.customerName}</div>
+                      <div style={{ color: 'var(--text-muted)', fontSize: '0.785rem' }}>{inq.contact}</div>
                     </td>
                     <td>
                       <StatusBadge status={inq.status} />
@@ -212,14 +341,17 @@ export default function InquiryListPage({ onSelectInquiry, onOpenCreate }) {
                           fontFamily: 'monospace',
                           fontSize: '0.75rem',
                           background: '#f1f5f9',
-                          padding: '0.15rem 0.4rem',
+                          padding: '0.2rem 0.5rem',
                           borderRadius: '4px',
+                          color: 'var(--text-secondary)',
+                          fontWeight: 600,
                         }}
+                        title="Optimistic Concurrency Control version counter"
                       >
                         v{inq.version}
                       </span>
                     </td>
-                    <td style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+                    <td style={{ color: 'var(--text-muted)', fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
                       {formatDate(inq.createdAt)}
                     </td>
                   </tr>
@@ -228,19 +360,21 @@ export default function InquiryListPage({ onSelectInquiry, onOpenCreate }) {
             </table>
           </div>
 
-          {/* Pagination */}
+          {/* Pagination Controls */}
           <div
             style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginTop: '1rem',
+              marginTop: '1.25rem',
               fontSize: '0.85rem',
               color: 'var(--text-muted)',
+              flexWrap: 'wrap',
+              gap: '0.75rem',
             }}
           >
             <div>
-              Showing {inquiries.length} of {total} inquiries
+              Showing <strong>{inquiries.length}</strong> of <strong>{total}</strong> inquiries
             </div>
 
             <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
@@ -249,9 +383,9 @@ export default function InquiryListPage({ onSelectInquiry, onOpenCreate }) {
                 disabled={page <= 1}
                 onClick={() => setPage((p) => Math.max(p - 1, 1))}
               >
-                Previous
+                ← Previous
               </button>
-              <span>
+              <span style={{ padding: '0 0.5rem', fontWeight: 500 }}>
                 Page {page} of {totalPages}
               </span>
               <button
@@ -259,7 +393,7 @@ export default function InquiryListPage({ onSelectInquiry, onOpenCreate }) {
                 disabled={page >= totalPages}
                 onClick={() => setPage((p) => p + 1)}
               >
-                Next
+                Next →
               </button>
             </div>
           </div>

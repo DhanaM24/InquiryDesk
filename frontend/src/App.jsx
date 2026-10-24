@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import Navbar from './components/Navbar';
 import LoginPage from './components/LoginPage';
@@ -11,19 +11,85 @@ export default function App() {
   const [selectedInquiryId, setSelectedInquiryId] = useState(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
+  // Sync state with URL hash (e.g. #inquiry/<uuid>) for direct links & Situation 3
+  useEffect(() => {
+    const parseHash = () => {
+      const hash = window.location.hash;
+      if (hash.startsWith('#inquiry/')) {
+        const id = hash.replace('#inquiry/', '');
+        if (id) {
+          setSelectedInquiryId(id);
+          setIsCreateOpen(false);
+          return;
+        }
+      }
+      if (hash === '#new') {
+        setIsCreateOpen(true);
+        setSelectedInquiryId(null);
+        return;
+      }
+      setSelectedInquiryId(null);
+    };
+
+    parseHash();
+    window.addEventListener('hashchange', parseHash);
+    return () => window.removeEventListener('hashchange', parseHash);
+  }, []);
+
+  const navigateToInquiry = (id) => {
+    window.location.hash = `#inquiry/${id}`;
+    setSelectedInquiryId(id);
+    setIsCreateOpen(false);
+  };
+
+  const navigateHome = () => {
+    window.location.hash = '';
+    setSelectedInquiryId(null);
+    setIsCreateOpen(false);
+  };
+
+  const openCreateModal = () => {
+    setIsCreateOpen(true);
+  };
+
+  const closeCreateModal = () => {
+    setIsCreateOpen(false);
+    if (window.location.hash === '#new') {
+      window.location.hash = '';
+    }
+  };
+
   if (loading) {
     return (
       <div
         style={{
           minHeight: '100vh',
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
+          gap: '1rem',
           color: 'var(--text-muted)',
-          fontSize: '0.9rem',
         }}
       >
-        Initializing InquiryDesk...
+        <div
+          style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '10px',
+            background: 'linear-gradient(135deg, #2563eb, #1e40af)',
+            color: 'white',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 700,
+            fontSize: '1rem',
+            animation: 'pulse 1.5s infinite',
+          }}
+        >
+          ID
+        </div>
+        <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>Connecting to InquiryDesk...</div>
       </div>
     );
   }
@@ -38,35 +104,29 @@ export default function App() {
 
   return (
     <div className="app-container">
-      <Navbar
-        onOpenCreate={() => setIsCreateOpen(true)}
-        onGoHome={() => setSelectedInquiryId(null)}
-      />
+      <Navbar onOpenCreate={openCreateModal} onGoHome={navigateHome} />
 
       <main className="main-content">
         {selectedInquiryId ? (
-          <InquiryDetailPage
-            inquiryId={selectedInquiryId}
-            onBack={() => setSelectedInquiryId(null)}
-          />
+          <InquiryDetailPage inquiryId={selectedInquiryId} onBack={navigateHome} />
         ) : (
           <InquiryListPage
-            onSelectInquiry={(id) => setSelectedInquiryId(id)}
-            onOpenCreate={() => setIsCreateOpen(true)}
+            onSelectInquiry={navigateToInquiry}
+            onOpenCreate={openCreateModal}
           />
         )}
       </main>
 
       {isCreateOpen && (
         <CreateInquiryModal
-          onClose={() => setIsCreateOpen(false)}
+          onClose={closeCreateModal}
           onCreated={(newInquiry) => {
-            setIsCreateOpen(false);
-            setSelectedInquiryId(newInquiry.id);
+            closeCreateModal();
+            navigateToInquiry(newInquiry.id);
           }}
           onViewExisting={(existingId) => {
-            setIsCreateOpen(false);
-            setSelectedInquiryId(existingId);
+            closeCreateModal();
+            navigateToInquiry(existingId);
           }}
         />
       )}

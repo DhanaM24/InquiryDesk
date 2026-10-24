@@ -13,18 +13,22 @@ export default function InquiryDetailPage({ inquiryId, onBack }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [updating, setUpdating] = useState(false);
-  const [staleError, setStaleError] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
+  const [staleConflict, setStaleConflict] = useState(false);
+  const [feedback, setFeedback] = useState('');
 
   const fetchDetail = async () => {
     setLoading(true);
     setError('');
-    setStaleError(false);
+    setStaleConflict(false);
     try {
       const data = await api.getInquiry(inquiryId);
       setInquiry(data);
     } catch (err) {
-      setError(err.message || 'Failed to load inquiry');
+      if (err.status === 404) {
+        setError('Inquiry not found or access restricted by ownership policy.');
+      } else {
+        setError(err.message || 'Failed to load inquiry record.');
+      }
     } finally {
       setLoading(false);
     }
@@ -38,20 +42,20 @@ export default function InquiryDetailPage({ inquiryId, onBack }) {
     if (!inquiry) return;
     setUpdating(true);
     setError('');
-    setStaleError(false);
-    setSuccessMessage('');
+    setStaleConflict(false);
+    setFeedback('');
 
     try {
-      // Optimistic concurrency control: passes current inquiry.version
+      // Optimistic concurrency control: sends current inquiry.version
       const updated = await api.changeStatus(inquiry.id, nextStatus, inquiry.version);
       setInquiry(updated);
-      setSuccessMessage(`Status updated to ${nextStatus.replace('_', ' ')} (now at version v${updated.version})`);
+      setFeedback(`Status successfully updated to "${nextStatus.replace('_', ' ')}" (version incremented to v${updated.version}).`);
     } catch (err) {
       if (err.status === 409) {
-        setStaleError(true);
-        setError(err.message);
+        setStaleConflict(true);
+        setError(err.message || 'This inquiry was updated elsewhere. Please reload to see the latest version.');
       } else {
-        setError(err.message || 'Status update failed');
+        setError(err.message || 'Status transition failed.');
       }
     } finally {
       setUpdating(false);
@@ -60,24 +64,56 @@ export default function InquiryDetailPage({ inquiryId, onBack }) {
 
   const formatDate = (isoStr) => {
     if (!isoStr) return '';
-    return new Date(isoStr).toLocaleString();
+    return new Date(isoStr).toLocaleString(undefined, {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    });
   };
 
+  /* Loading State */
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>
-        Loading inquiry details...
+      <div style={{ maxWidth: '850px', margin: '0 auto' }}>
+        <div className="skeleton" style={{ width: '140px', height: '34px', marginBottom: '1.5rem' }} />
+        <div className="card" style={{ padding: '2rem' }}>
+          <div className="skeleton skeleton-badge" style={{ marginBottom: '1rem' }} />
+          <div className="skeleton skeleton-text" style={{ width: '70%', height: '24px', marginBottom: '1.5rem' }} />
+          <div className="skeleton" style={{ width: '100%', height: '100px', marginBottom: '1.5rem' }} />
+          <div className="skeleton skeleton-text" style={{ width: '100%', height: '80px' }} />
+        </div>
       </div>
     );
   }
 
+  /* 404 or Critical Error State */
   if (error && !inquiry) {
     return (
-      <div className="card" style={{ textAlign: 'center', padding: '3rem 1.5rem' }}>
-        <div className="alert alert-danger" style={{ display: 'inline-flex' }}>{error}</div>
-        <div style={{ marginTop: '1rem' }}>
-          <button className="btn btn-secondary" onClick={onBack}>
-            ← Back to Inquiries
+      <div style={{ maxWidth: '600px', margin: '3rem auto' }}>
+        <div className="card" style={{ textAlign: 'center', padding: '3.5rem 2rem' }}>
+          <div
+            style={{
+              width: '56px',
+              height: '56px',
+              borderRadius: '50%',
+              backgroundColor: '#fee2e2',
+              color: '#ef4444',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 1.25rem',
+              fontSize: '1.75rem',
+            }}
+          >
+            ✕
+          </div>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.4rem' }}>
+            Inquiry Not Available
+          </h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem', lineHeight: 1.5 }}>
+            {error}
+          </p>
+          <button className="btn btn-primary" onClick={onBack}>
+            ← Return to Inquiries Workspace
           </button>
         </div>
       </div>
@@ -87,65 +123,92 @@ export default function InquiryDetailPage({ inquiryId, onBack }) {
   const nextActions = inquiry ? ALLOWED_TRANSITIONS[inquiry.status] || [] : [];
 
   return (
-    <div style={{ maxWidth: '850px', margin: '0 auto' }}>
-      {/* Back button */}
-      <button
-        onClick={onBack}
-        className="btn btn-outline"
-        style={{ marginBottom: '1.25rem', padding: '0.4rem 0.75rem' }}
+    <div style={{ maxWidth: '880px', margin: '0 auto' }}>
+      {/* Navigation and Actions Bar */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '1.5rem',
+        }}
       >
-        ← Back to Inquiries
-      </button>
+        <button
+          onClick={onBack}
+          className="btn btn-outline"
+          style={{ padding: '0.45rem 0.85rem' }}
+        >
+          ← Back to Inquiries
+        </button>
+      </div>
 
-      {/* Alerts */}
-      {successMessage && <div className="alert alert-success">{successMessage}</div>}
+      {/* Success alert */}
+      {feedback && <div className="alert alert-success">{feedback}</div>}
 
-      {staleError && (
-        <div className="alert alert-warning" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      {/* Stale Concurrency Conflict (409) Banner */}
+      {staleConflict && (
+        <div
+          className="alert alert-warning"
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '0.75rem',
+          }}
+        >
           <div>
-            <strong>Concurrency Conflict:</strong> {error}
+            <strong>⚠️ Concurrency Conflict (OCC):</strong> {error}
           </div>
-          <button className="btn btn-secondary" style={{ fontSize: '0.75rem' }} onClick={fetchDetail}>
-            Reload Latest Data
+          <button
+            className="btn btn-secondary"
+            style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}
+            onClick={fetchDetail}
+          >
+            Reload Latest Version
           </button>
         </div>
       )}
 
-      {error && !staleError && <div className="alert alert-danger">{error}</div>}
+      {/* General Error Banner */}
+      {error && !staleConflict && <div className="alert alert-danger">{error}</div>}
 
-      {/* Inquiry Detail Card */}
-      <div className="card" style={{ padding: '2rem' }}>
-        {/* Header */}
+      {/* Main Detail Card */}
+      <div className="card" style={{ padding: '2.25rem' }}>
+        {/* Card Header: Subject, Status, Version, and Lifecycle buttons */}
         <div
           style={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'flex-start',
             borderBottom: '1px solid var(--border-color)',
-            paddingBottom: '1.25rem',
-            marginBottom: '1.5rem',
+            paddingBottom: '1.5rem',
+            marginBottom: '1.75rem',
             gap: '1rem',
             flexWrap: 'wrap',
           }}
         >
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.65rem' }}>
               <StatusBadge status={inquiry.status} />
               <span
                 style={{
                   fontFamily: 'monospace',
                   fontSize: '0.75rem',
                   background: '#f1f5f9',
-                  padding: '0.2rem 0.5rem',
+                  padding: '0.2rem 0.55rem',
                   borderRadius: '4px',
                   fontWeight: 600,
+                  color: 'var(--text-secondary)',
                 }}
-                title="Optimistic Concurrency Version"
+                title="Optimistic Concurrency Control integer version"
               >
                 v{inquiry.version}
               </span>
             </div>
-            <h1 style={{ fontSize: '1.4rem', fontWeight: 700 }}>{inquiry.subject}</h1>
+            <h1 style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.02em' }}>
+              {inquiry.subject}
+            </h1>
           </div>
 
           {/* Lifecycle Action Buttons */}
@@ -157,7 +220,7 @@ export default function InquiryDetailPage({ inquiryId, onBack }) {
                 disabled={updating}
                 onClick={() => handleStatusChange(action.status)}
               >
-                {updating ? 'Updating...' : action.label}
+                {updating ? 'Updating status...' : action.label}
               </button>
             ))}
           </div>
@@ -167,83 +230,89 @@ export default function InquiryDetailPage({ inquiryId, onBack }) {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
             gap: '1.25rem',
             background: '#f8fafc',
-            padding: '1.25rem',
+            padding: '1.25rem 1.5rem',
             borderRadius: 'var(--radius-sm)',
-            marginBottom: '1.75rem',
+            border: '1px solid var(--border-color)',
+            marginBottom: '2rem',
           }}
         >
           <div>
-            <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 600 }}>
+            <span style={{ fontSize: '0.725rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 600, letterSpacing: '0.04em' }}>
               Customer Name
             </span>
-            <div style={{ fontWeight: 600, marginTop: '0.2rem' }}>{inquiry.customerName}</div>
+            <div style={{ fontWeight: 600, marginTop: '0.25rem', color: 'var(--text-main)', fontSize: '0.95rem' }}>
+              {inquiry.customerName}
+            </div>
           </div>
 
           <div>
-            <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 600 }}>
-              Contact Details
+            <span style={{ fontSize: '0.725rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 600, letterSpacing: '0.04em' }}>
+              Contact Channel
             </span>
-            <div style={{ fontWeight: 600, marginTop: '0.2rem' }}>{inquiry.contact}</div>
+            <div style={{ fontWeight: 600, marginTop: '0.25rem', color: 'var(--text-main)', fontSize: '0.95rem' }}>
+              {inquiry.contact}
+            </div>
           </div>
 
           <div>
-            <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 600 }}>
-              Created
+            <span style={{ fontSize: '0.725rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 600, letterSpacing: '0.04em' }}>
+              Created At
             </span>
-            <div style={{ fontSize: '0.875rem', marginTop: '0.2rem', color: 'var(--text-main)' }}>
+            <div style={{ fontSize: '0.85rem', marginTop: '0.25rem', color: 'var(--text-secondary)' }}>
               {formatDate(inquiry.createdAt)}
             </div>
           </div>
 
           <div>
-            <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 600 }}>
-              Last Updated
+            <span style={{ fontSize: '0.725rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 600, letterSpacing: '0.04em' }}>
+              Last Status Update
             </span>
-            <div style={{ fontSize: '0.875rem', marginTop: '0.2rem', color: 'var(--text-main)' }}>
+            <div style={{ fontSize: '0.85rem', marginTop: '0.25rem', color: 'var(--text-secondary)' }}>
               {formatDate(inquiry.updatedAt)}
             </div>
           </div>
         </div>
 
-        {/* Description Section */}
+        {/* Full Inquiry Description */}
         <div>
-          <h3 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.75rem' }}>
-            Inquiry Description
-          </h3>
+          <h2 style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
+            Inquiry Narrative & Customer Request
+          </h2>
           <div
             style={{
               lineHeight: 1.7,
-              fontSize: '0.925rem',
+              fontSize: '0.95rem',
               whiteSpace: 'pre-wrap',
               background: '#ffffff',
-              padding: '1.25rem',
+              padding: '1.5rem',
               borderRadius: 'var(--radius-sm)',
               border: '1px solid var(--border-color)',
+              color: 'var(--text-main)',
             }}
           >
             {inquiry.description}
           </div>
         </div>
 
-        {/* Technical / Interview info footer */}
+        {/* Technical Footer */}
         <div
           style={{
-            marginTop: '2rem',
-            paddingTop: '1rem',
+            marginTop: '2.5rem',
+            paddingTop: '1.25rem',
             borderTop: '1px solid var(--border-color)',
             fontSize: '0.75rem',
-            color: 'var(--text-muted)',
+            color: 'var(--text-light)',
             display: 'flex',
             justifyContent: 'space-between',
             flexWrap: 'wrap',
             gap: '0.5rem',
           }}
         >
-          <span>Inquiry ID: <code>{inquiry.id}</code></span>
-          <span>Created By User ID: <code>{inquiry.createdBy}</code></span>
+          <span>Record ID: <code style={{ color: 'var(--text-muted)' }}>{inquiry.id}</code></span>
+          <span>Logged By User: <code style={{ color: 'var(--text-muted)' }}>{inquiry.createdBy}</code></span>
         </div>
       </div>
     </div>

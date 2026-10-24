@@ -4,31 +4,43 @@ import { useAuth } from '../AuthContext';
 export default function Navbar({ onOpenCreate, onGoHome }) {
   const { user, logout } = useAuth();
 
+  const getInitials = (name) => {
+    if (!name) return 'U';
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
     <header className="navbar">
       <div className="navbar-inner">
         <button
           onClick={onGoHome}
           className="brand"
-          style={{ cursor: 'pointer' }}
-          title="InquiryDesk Home"
+          title="InquiryDesk Dashboard"
         >
-          <span className="brand-badge">ID</span>
-          <span>InquiryDesk</span>
+          <div className="brand-icon">ID</div>
+          <span className="brand-title">InquiryDesk</span>
         </button>
 
         {user && (
-          <div className="user-profile">
+          <div className="user-nav-group">
             <button className="btn btn-primary" onClick={onOpenCreate}>
-              + New Inquiry
+              <span style={{ fontSize: '1rem', lineHeight: 1 }}>+</span> Log New Inquiry
             </button>
 
-            <div className="user-tag">
-              <span className="user-name">{user.name || user.email}</span>
-              <span className={`role-badge ${user.role}`}>{user.role}</span>
+            <div className="user-pill">
+              <div className="user-avatar">{getInitials(user.name || user.email)}</div>
+              <div className="user-details">
+                <span className="user-name">{user.name || user.email}</span>
+                <span className={`role-tag ${user.role}`}>{user.role}</span>
+              </div>
             </div>
 
-            <button className="btn btn-outline" onClick={logout}>
+            <button className="btn btn-outline" onClick={logout} title="Sign out of your session">
               Sign Out
             </button>
           </div>
