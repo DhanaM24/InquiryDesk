@@ -77,7 +77,7 @@ export default function App() {
             width: '40px',
             height: '40px',
             borderRadius: '10px',
-            background: 'linear-gradient(135deg, #2563eb, #1e40af)',
+            background: 'linear-gradient(135deg, #ff5a1f, #d94814)',
             color: 'white',
             display: 'flex',
             alignItems: 'center',
@@ -87,7 +87,7 @@ export default function App() {
             animation: 'pulse 1.5s infinite',
           }}
         >
-          ID
+          ✦
         </div>
         <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>Connecting to InquiryDesk...</div>
       </div>
@@ -95,11 +95,7 @@ export default function App() {
   }
 
   if (!user) {
-    return (
-      <div className="app-container">
-        <LoginPage />
-      </div>
-    );
+    return <LoginPage />;
   }
 
   return (
