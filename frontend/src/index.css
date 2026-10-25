@@ -240,44 +240,165 @@ input.input-error:focus, textarea.input-error:focus {
   border: 1px solid #bbf7d0;
 }
 
-/* Stat Cards Banner */
+/* ==========================================================
+   RICH COLORED STAT CARDS BANNER
+   ========================================================== */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
+  gap: 1.15rem;
   margin-bottom: 1.75rem;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
+@media (max-width: 520px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .stat-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 1rem 1.25rem;
-  box-shadow: var(--shadow-xs);
+  border-radius: 14px;
+  padding: 1.15rem 1.35rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
   display: flex;
   flex-direction: column;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+}
+
+.stat-card-active {
+  box-shadow: 0 0 0 2px var(--primary), 0 10px 15px -3px rgba(37, 99, 235, 0.15) !important;
+}
+
+.stat-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.65rem;
 }
 
 .stat-title {
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.775rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
+  letter-spacing: 0.06em;
+}
+
+.stat-icon-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
 }
 
 .stat-value {
-  font-size: 1.65rem;
-  font-weight: 700;
-  color: var(--text-main);
-  margin-top: 0.25rem;
-  line-height: 1.2;
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.stat-subtitle {
+  font-size: 0.75rem;
+  margin-top: 0.4rem;
+  font-weight: 500;
+}
+
+/* 1. Total Records (Sleek Slate/Indigo) */
+.stat-card-total {
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 60%, #f1f5f9 100%);
+  border: 1px solid #cbd5e1;
+  border-top: 4px solid #475569;
+}
+.stat-card-total .stat-title {
+  color: #475569;
+}
+.stat-card-total .stat-value {
+  color: #0f172a;
+}
+.stat-card-total .stat-subtitle {
+  color: #64748b;
+}
+.stat-card-total .badge-total {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+/* 2. New Inquiries (Vibrant Sky Blue) */
+.stat-card-new {
+  background: linear-gradient(145deg, #ffffff 0%, #f0f7ff 60%, #e0effe 100%);
+  border: 1px solid #bfdbfe;
+  border-top: 4px solid #2563eb;
+}
+.stat-card-new .stat-title {
+  color: #1d4ed8;
+}
+.stat-card-new .stat-value {
+  color: #1d4ed8;
+}
+.stat-card-new .stat-subtitle {
+  color: #3b82f6;
+}
+.stat-card-new .badge-new {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+/* 3. In Progress (Warm Golden Amber) */
+.stat-card-progress {
+  background: linear-gradient(145deg, #ffffff 0%, #fffdf5 60%, #fef3c7 100%);
+  border: 1px solid #fde68a;
+  border-top: 4px solid #f59e0b;
+}
+.stat-card-progress .stat-title {
+  color: #b45309;
+}
+.stat-card-progress .stat-value {
+  color: #b45309;
+}
+.stat-card-progress .stat-subtitle {
+  color: #d97706;
+}
+.stat-card-progress .badge-progress {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+/* 4. Resolved (Fresh Emerald Green) */
+.stat-card-resolved {
+  background: linear-gradient(145deg, #ffffff 0%, #f2fcf6 60%, #dcfce7 100%);
+  border: 1px solid #a7f3d0;
+  border-top: 4px solid #10b981;
+}
+.stat-card-resolved .stat-title {
+  color: #047857;
+}
+.stat-card-resolved .stat-value {
+  color: #047857;
+}
+.stat-card-resolved .stat-subtitle {
+  color: #059669;
+}
+.stat-card-resolved .badge-resolved {
+  background: #d1fae5;
+  color: #047857;
 }
 
 /* Status Badges */
@@ -535,7 +656,6 @@ tr.table-row-hover:hover {
     transform: translateY(0) scale(1);
   }
 }
-
 
 /* ==========================================================
    DASHBOARD SIDEBAR & HEADER LAYOUT

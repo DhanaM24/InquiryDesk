@@ -113,29 +113,62 @@ export default function InquiryListPage({
         </button>
       </div>
 
-      {/* Summary Stat Cards */}
+      {/* Summary Stat Cards with Rich Colors & Icons */}
       <div className="stats-grid">
-        <div className="stat-card" style={{ cursor: 'pointer' }} onClick={() => handleTabChange('all')}>
-          <span className="stat-title">Total Records</span>
-          <span className="stat-value">{stats.total || total}</span>
+        <div
+          className={`stat-card stat-card-total ${statusFilter === 'all' ? 'stat-card-active' : ''}`}
+          style={{ cursor: 'pointer' }}
+          onClick={() => handleTabChange('all')}
+          title="Click to view all inquiries"
+        >
+          <div className="stat-card-header">
+            <span className="stat-title">Total Records</span>
+            <span className="stat-icon-badge badge-total">📊</span>
+          </div>
+          <div className="stat-value">{stats.total || total}</div>
+          <div className="stat-subtitle">All active inquiries</div>
         </div>
-        <div className="stat-card" style={{ borderLeft: '4px solid var(--primary)', cursor: 'pointer' }} onClick={() => handleTabChange('new')}>
-          <span className="stat-title">New Inquiries</span>
-          <span className="stat-value" style={{ color: 'var(--primary)' }}>
-            {stats.new}
-          </span>
+
+        <div
+          className={`stat-card stat-card-new ${statusFilter === 'new' ? 'stat-card-active' : ''}`}
+          style={{ cursor: 'pointer' }}
+          onClick={() => handleTabChange('new')}
+          title="Click to filter by New inquiries"
+        >
+          <div className="stat-card-header">
+            <span className="stat-title">New Inquiries</span>
+            <span className="stat-icon-badge badge-new">✦</span>
+          </div>
+          <div className="stat-value">{stats.new}</div>
+          <div className="stat-subtitle">Awaiting response</div>
         </div>
-        <div className="stat-card" style={{ borderLeft: '4px solid var(--warning)', cursor: 'pointer' }} onClick={() => handleTabChange('in_progress')}>
-          <span className="stat-title">In Progress</span>
-          <span className="stat-value" style={{ color: 'var(--warning)' }}>
-            {stats.in_progress}
-          </span>
+
+        <div
+          className={`stat-card stat-card-progress ${statusFilter === 'in_progress' ? 'stat-card-active' : ''}`}
+          style={{ cursor: 'pointer' }}
+          onClick={() => handleTabChange('in_progress')}
+          title="Click to filter by In Progress inquiries"
+        >
+          <div className="stat-card-header">
+            <span className="stat-title">In Progress</span>
+            <span className="stat-icon-badge badge-progress">⏳</span>
+          </div>
+          <div className="stat-value">{stats.in_progress}</div>
+          <div className="stat-subtitle">Under active review</div>
         </div>
-        <div className="stat-card" style={{ borderLeft: '4px solid var(--success)', cursor: 'pointer' }} onClick={() => handleTabChange('resolved')}>
-          <span className="stat-title">Resolved</span>
-          <span className="stat-value" style={{ color: 'var(--success)' }}>
-            {stats.resolved}
-          </span>
+
+        <div
+          className={`stat-card stat-card-resolved ${statusFilter === 'resolved' ? 'stat-card-active' : ''}`}
+          style={{ cursor: 'pointer' }}
+          onClick={() => handleTabChange('resolved')}
+          title="Click to filter by Resolved inquiries"
+        >
+          <div className="stat-card-header">
+            <span className="stat-title">Resolved</span>
+            <span className="stat-icon-badge badge-resolved">✓</span>
+          </div>
+          <div className="stat-value">{stats.resolved}</div>
+          <div className="stat-subtitle">Successfully completed</div>
         </div>
       </div>
 
