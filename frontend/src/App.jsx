@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
-import Navbar from './components/Navbar';
+import Sidebar from './components/Sidebar';
+import TopHeader from './components/TopHeader';
 import LoginPage from './components/LoginPage';
 import InquiryListPage from './components/InquiryListPage';
 import InquiryDetailPage from './components/InquiryDetailPage';
@@ -9,7 +10,10 @@ import CreateInquiryModal from './components/CreateInquiryModal';
 export default function App() {
   const { user, loading } = useAuth();
   const [selectedInquiryId, setSelectedInquiryId] = useState(null);
+  const [activeFilter, setActiveFilter] = useState('all');
+  const [counts, setCounts] = useState({ total: 0, new: 0, in_progress: 0, resolved: 0 });
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // Sync state with URL hash (e.g. #inquiry/<uuid>) for direct links & Situation 3
   useEffect(() => {
@@ -48,6 +52,11 @@ export default function App() {
     setIsCreateOpen(false);
   };
 
+  const handleSelectFilter = (filter) => {
+    setActiveFilter(filter);
+    navigateHome();
+  };
+
   const openCreateModal = () => {
     setIsCreateOpen(true);
   };
@@ -56,6 +65,15 @@ export default function App() {
     setIsCreateOpen(false);
     if (window.location.hash === '#new') {
       window.location.hash = '';
+    }
+  };
+
+  const getFilterLabel = () => {
+    switch (activeFilter) {
+      case 'new': return 'New Inquiries';
+      case 'in_progress': return 'In Progress Inquiries';
+      case 'resolved': return 'Resolved Inquiries';
+      default: return 'All Inquiries';
     }
   };
 
@@ -77,7 +95,7 @@ export default function App() {
             width: '40px',
             height: '40px',
             borderRadius: '10px',
-            background: 'linear-gradient(135deg, #ff5a1f, #d94814)',
+            background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
             color: 'white',
             display: 'flex',
             alignItems: 'center',
@@ -99,19 +117,41 @@ export default function App() {
   }
 
   return (
-    <div className="app-container">
-      <Navbar onOpenCreate={openCreateModal} onGoHome={navigateHome} />
+    <div className="dashboard-layout">
+      {/* Sidebar Navigation */}
+      <Sidebar
+        activeFilter={activeFilter}
+        onSelectFilter={handleSelectFilter}
+        onOpenCreate={openCreateModal}
+        onGoHome={navigateHome}
+        counts={counts}
+        isMobileOpen={isMobileSidebarOpen}
+        onCloseMobile={() => setIsMobileSidebarOpen(false)}
+      />
 
-      <main className="main-content">
-        {selectedInquiryId ? (
-          <InquiryDetailPage inquiryId={selectedInquiryId} onBack={navigateHome} />
-        ) : (
-          <InquiryListPage
-            onSelectInquiry={navigateToInquiry}
-            onOpenCreate={openCreateModal}
-          />
-        )}
-      </main>
+      {/* Main Content Area */}
+      <div className="dashboard-main">
+        <TopHeader
+          onToggleMobileSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+          selectedInquiryId={selectedInquiryId}
+          onBackHome={navigateHome}
+          activeFilterLabel={getFilterLabel()}
+        />
+
+        <main className="dashboard-body">
+          {selectedInquiryId ? (
+            <InquiryDetailPage inquiryId={selectedInquiryId} onBack={navigateHome} />
+          ) : (
+            <InquiryListPage
+              statusFilter={activeFilter}
+              onFilterChange={setActiveFilter}
+              onSelectInquiry={navigateToInquiry}
+              onOpenCreate={openCreateModal}
+              onCountsChange={setCounts}
+            />
+          )}
+        </main>
+      </div>
 
       {isCreateOpen && (
         <CreateInquiryModal

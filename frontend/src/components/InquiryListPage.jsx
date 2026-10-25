@@ -3,11 +3,16 @@ import { api } from '../api';
 import { useAuth } from '../AuthContext';
 import StatusBadge from './StatusBadge';
 
-export default function InquiryListPage({ onSelectInquiry, onOpenCreate }) {
+export default function InquiryListPage({
+  onSelectInquiry,
+  onOpenCreate,
+  statusFilter = 'all',
+  onFilterChange,
+  onCountsChange,
+}) {
   const { user } = useAuth();
   const [inquiries, setInquiries] = useState([]);
   const [total, setTotal] = useState(0);
-  const [statusFilter, setStatusFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -45,6 +50,7 @@ export default function InquiryListPage({ onSelectInquiry, onOpenCreate }) {
           if (counts[item.status] !== undefined) counts[item.status]++;
         });
         setStats(counts);
+        if (onCountsChange) onCountsChange(counts);
       }
     } catch (err) {
       setError(err.message || 'Failed to load inquiries. Ensure the backend server is running.');
@@ -56,6 +62,13 @@ export default function InquiryListPage({ onSelectInquiry, onOpenCreate }) {
   useEffect(() => {
     loadInquiries();
   }, [statusFilter, debouncedSearch, page]);
+
+  const handleTabChange = (newStatus) => {
+    if (onFilterChange) {
+      onFilterChange(newStatus);
+    }
+    setPage(1);
+  };
 
   const totalPages = Math.ceil(total / pageSize) || 1;
 
@@ -102,23 +115,23 @@ export default function InquiryListPage({ onSelectInquiry, onOpenCreate }) {
 
       {/* Summary Stat Cards */}
       <div className="stats-grid">
-        <div className="stat-card">
+        <div className="stat-card" style={{ cursor: 'pointer' }} onClick={() => handleTabChange('all')}>
           <span className="stat-title">Total Records</span>
           <span className="stat-value">{stats.total || total}</span>
         </div>
-        <div className="stat-card" style={{ borderLeft: '4px solid var(--primary)' }}>
+        <div className="stat-card" style={{ borderLeft: '4px solid var(--primary)', cursor: 'pointer' }} onClick={() => handleTabChange('new')}>
           <span className="stat-title">New Inquiries</span>
           <span className="stat-value" style={{ color: 'var(--primary)' }}>
             {stats.new}
           </span>
         </div>
-        <div className="stat-card" style={{ borderLeft: '4px solid var(--warning)' }}>
+        <div className="stat-card" style={{ borderLeft: '4px solid var(--warning)', cursor: 'pointer' }} onClick={() => handleTabChange('in_progress')}>
           <span className="stat-title">In Progress</span>
           <span className="stat-value" style={{ color: 'var(--warning)' }}>
             {stats.in_progress}
           </span>
         </div>
-        <div className="stat-card" style={{ borderLeft: '4px solid var(--success)' }}>
+        <div className="stat-card" style={{ borderLeft: '4px solid var(--success)', cursor: 'pointer' }} onClick={() => handleTabChange('resolved')}>
           <span className="stat-title">Resolved</span>
           <span className="stat-value" style={{ color: 'var(--success)' }}>
             {stats.resolved}
@@ -149,10 +162,7 @@ export default function InquiryListPage({ onSelectInquiry, onOpenCreate }) {
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => {
-                setStatusFilter(tab.id);
-                setPage(1);
-              }}
+              onClick={() => handleTabChange(tab.id)}
               className={`btn ${statusFilter === tab.id ? 'btn-primary' : 'btn-secondary'}`}
               style={{ padding: '0.45rem 0.95rem', fontSize: '0.825rem' }}
             >
@@ -280,7 +290,7 @@ export default function InquiryListPage({ onSelectInquiry, onOpenCreate }) {
               className="btn btn-secondary"
               onClick={() => {
                 setSearchTerm('');
-                setStatusFilter('all');
+                handleTabChange('all');
               }}
             >
               Reset Filters
