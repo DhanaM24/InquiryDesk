@@ -22,7 +22,9 @@ export default function Navbar({ onOpenCreate, onGoHome }) {
           className="brand"
           title="InquiryDesk Dashboard"
         >
-          <div className="brand-icon">ID</div>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#2563eb">
+            <path d="M12 0L14.7 9.3L24 12L14.7 14.7L12 24L9.3 14.7L0 12L9.3 9.3L12 0Z" />
+          </svg>
           <span className="brand-title">InquiryDesk</span>
         </button>
 

@@ -36,14 +36,14 @@ export default function LoginPage() {
         margin: 0,
         padding: 0,
         overflow: 'hidden',
-        backgroundColor: '#151210',
+        backgroundColor: '#030712',
       }}
     >
-      {/* LEFT COLUMN: Hero showcase */}
+      {/* LEFT COLUMN: Hero showcase in Deep Midnight Blue */}
       <div
         style={{
           flex: '1.15',
-          background: 'radial-gradient(ellipse at 20% 25%, #2a1b14 0%, #171311 55%, #0f0c0a 100%)',
+          background: 'radial-gradient(ellipse at 20% 25%, #172554 0%, #0f172a 55%, #020617 100%)',
           color: '#ffffff',
           padding: '3.75rem 4.5rem',
           display: 'flex',
@@ -54,9 +54,9 @@ export default function LoginPage() {
         }}
         className="login-hero-pane"
       >
-        {/* Top: Logo with Sparkle */}
+        {/* Top: Logo with Blue Sparkle */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="#ff5a1f">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#3b82f6">
             <path d="M12 0L14.7 9.3L24 12L14.7 14.7L12 24L9.3 14.7L0 12L9.3 9.3L12 0Z" />
           </svg>
           <span style={{ fontSize: '1.25rem', fontWeight: 700, letterSpacing: '-0.02em', color: '#ffffff' }}>
@@ -76,12 +76,12 @@ export default function LoginPage() {
             }}
           >
             Every customer request, from first message to{' '}
-            <span style={{ color: '#ff5a1f' }}>resolved.</span>
+            <span style={{ color: '#3b82f6' }}>resolved.</span>
           </h1>
           <p
             style={{
               fontSize: '1.05rem',
-              color: '#9e9085',
+              color: '#94a3b8',
               marginTop: '1.5rem',
               lineHeight: 1.6,
               maxWidth: '430px',
@@ -107,8 +107,8 @@ export default function LoginPage() {
               position: 'absolute',
               left: '0px',
               bottom: '0px',
-              background: '#201b17',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              background: '#0f172a',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
               borderRadius: '14px',
               padding: '0.85rem 1.15rem',
               width: '190px',
@@ -121,8 +121,8 @@ export default function LoginPage() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.35rem',
-                background: '#282b3d',
-                color: '#96a8fd',
+                background: '#1e3a8a',
+                color: '#bfdbfe',
                 fontSize: '0.725rem',
                 fontWeight: 600,
                 padding: '0.2rem 0.55rem',
@@ -130,13 +130,13 @@ export default function LoginPage() {
                 marginBottom: '0.55rem',
               }}
             >
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#617cfd' }} />
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#60a5fa' }} />
               New
             </div>
             <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.2rem' }}>
               Order delayed
             </div>
-            <div style={{ fontSize: '0.775rem', color: '#9e9085' }}>Nimal Perera</div>
+            <div style={{ fontSize: '0.775rem', color: '#94a3b8' }}>Nimal Perera</div>
           </div>
 
           {/* Card 2: In progress (Elevated in front) */}
@@ -145,8 +145,8 @@ export default function LoginPage() {
               position: 'absolute',
               left: '135px',
               bottom: '22px',
-              background: '#251f1b',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
+              background: '#172033',
+              border: '1px solid rgba(59, 130, 246, 0.25)',
               borderRadius: '14px',
               padding: '0.85rem 1.15rem',
               width: '190px',
@@ -174,7 +174,7 @@ export default function LoginPage() {
             <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.2rem' }}>
               Refund request
             </div>
-            <div style={{ fontSize: '0.775rem', color: '#9e9085' }}>Kamala Silva</div>
+            <div style={{ fontSize: '0.775rem', color: '#94a3b8' }}>Kamala Silva</div>
           </div>
 
           {/* Card 3: Resolved */}
@@ -183,8 +183,8 @@ export default function LoginPage() {
               position: 'absolute',
               left: '265px',
               bottom: '4px',
-              background: '#1d1916',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              background: '#0f172a',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
               borderRadius: '14px',
               padding: '0.85rem 1.15rem',
               width: '190px',
@@ -197,7 +197,7 @@ export default function LoginPage() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.35rem',
-                background: '#1b3426',
+                background: '#143828',
                 color: '#6ee7b7',
                 fontSize: '0.725rem',
                 fontWeight: 600,
@@ -212,7 +212,7 @@ export default function LoginPage() {
             <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.2rem' }}>
               Wrong item received
             </div>
-            <div style={{ fontSize: '0.775rem', color: '#9e9085' }}>Sunil Fernando</div>
+            <div style={{ fontSize: '0.775rem', color: '#94a3b8' }}>Sunil Fernando</div>
           </div>
         </div>
       </div>
@@ -221,7 +221,7 @@ export default function LoginPage() {
       <div
         style={{
           flex: '1',
-          background: '#f8f8f9',
+          background: '#f8fafc',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -233,7 +233,7 @@ export default function LoginPage() {
             style={{
               fontSize: '2.15rem',
               fontWeight: 800,
-              color: '#111827',
+              color: '#0f172a',
               letterSpacing: '-0.025em',
             }}
           >
@@ -242,7 +242,7 @@ export default function LoginPage() {
           <p
             style={{
               fontSize: '0.925rem',
-              color: '#6b7280',
+              color: '#64748b',
               marginTop: '0.35rem',
               marginBottom: '2rem',
             }}
@@ -273,7 +273,7 @@ export default function LoginPage() {
                   display: 'block',
                   fontSize: '0.85rem',
                   fontWeight: 600,
-                  color: '#111827',
+                  color: '#0f172a',
                   marginBottom: '0.45rem',
                 }}
               >
@@ -288,11 +288,12 @@ export default function LoginPage() {
                 style={{
                   width: '100%',
                   background: '#ffffff',
-                  border: '1px solid #d1d5db',
+                  border: '1px solid #cbd5e1',
                   borderRadius: '8px',
                   padding: '0.75rem 1rem',
                   fontSize: '0.925rem',
-                  color: '#111827',
+                  color: '#0f172a',
+                  outline: 'none',
                 }}
               />
             </div>
@@ -303,7 +304,7 @@ export default function LoginPage() {
                   display: 'block',
                   fontSize: '0.85rem',
                   fontWeight: 600,
-                  color: '#111827',
+                  color: '#0f172a',
                   marginBottom: '0.45rem',
                 }}
               >
@@ -317,11 +318,12 @@ export default function LoginPage() {
                 style={{
                   width: '100%',
                   background: '#ffffff',
-                  border: '1px solid #d1d5db',
+                  border: '1px solid #cbd5e1',
                   borderRadius: '8px',
                   padding: '0.75rem 1rem',
                   fontSize: '0.925rem',
-                  color: '#111827',
+                  color: '#0f172a',
+                  outline: 'none',
                 }}
               />
             </div>
@@ -331,7 +333,7 @@ export default function LoginPage() {
               disabled={submitting}
               style={{
                 width: '100%',
-                background: '#ff5a1f',
+                background: '#2563eb',
                 color: '#ffffff',
                 border: 'none',
                 borderRadius: '9999px',
@@ -340,25 +342,25 @@ export default function LoginPage() {
                 fontWeight: 600,
                 cursor: submitting ? 'not-allowed' : 'pointer',
                 marginTop: '0.5rem',
-                boxShadow: '0 2px 4px rgba(255, 90, 31, 0.25)',
+                boxShadow: '0 2px 4px rgba(37, 99, 235, 0.25)',
                 transition: 'background 0.15s ease',
               }}
-              onMouseOver={(e) => (e.currentTarget.style.background = '#ea480f')}
-              onMouseOut={(e) => (e.currentTarget.style.background = '#ff5a1f')}
+              onMouseOver={(e) => (e.currentTarget.style.background = '#1d4ed8')}
+              onMouseOut={(e) => (e.currentTarget.style.background = '#2563eb')}
             >
               {submitting ? 'Signing in...' : 'Sign in'}
             </button>
           </form>
 
           {/* Divider */}
-          <div style={{ borderTop: '1px solid #e5e7eb', margin: '2rem 0 1.5rem' }} />
+          <div style={{ borderTop: '1px solid #e2e8f0', margin: '2rem 0 1.5rem' }} />
 
           {/* Demo Accounts Pill Group */}
           <div>
             <div
               style={{
                 fontSize: '0.8rem',
-                color: '#6b7280',
+                color: '#64748b',
                 marginBottom: '0.75rem',
                 display: 'flex',
                 alignItems: 'center',
@@ -368,8 +370,8 @@ export default function LoginPage() {
               <span>Demo accounts · password</span>
               <span
                 style={{
-                  background: '#ffedd5',
-                  color: '#c2410c',
+                  background: '#dbeafe',
+                  color: '#1e40af',
                   padding: '0.15rem 0.5rem',
                   borderRadius: '4px',
                   fontWeight: 600,
@@ -386,23 +388,25 @@ export default function LoginPage() {
                 onClick={() => handleFillDemo('staff1@demo.com')}
                 style={{
                   background: '#ffffff',
-                  border: '1px solid #e5e7eb',
+                  border: '1px solid #e2e8f0',
                   borderRadius: '9999px',
                   padding: '0.45rem 1rem',
                   fontSize: '0.825rem',
-                  color: '#374151',
+                  color: '#334155',
                   fontWeight: 500,
                   cursor: 'pointer',
                   boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
                   transition: 'all 0.15s ease',
                 }}
                 onMouseOver={(e) => {
-                  e.currentTarget.style.borderColor = '#ff5a1f';
-                  e.currentTarget.style.color = '#ff5a1f';
+                  e.currentTarget.style.borderColor = '#2563eb';
+                  e.currentTarget.style.color = '#2563eb';
+                  e.currentTarget.style.background = '#eff6ff';
                 }}
                 onMouseOut={(e) => {
-                  e.currentTarget.style.borderColor = '#e5e7eb';
-                  e.currentTarget.style.color = '#374151';
+                  e.currentTarget.style.borderColor = '#e2e8f0';
+                  e.currentTarget.style.color = '#334155';
+                  e.currentTarget.style.background = '#ffffff';
                 }}
               >
                 staff1@demo.com
@@ -413,23 +417,25 @@ export default function LoginPage() {
                 onClick={() => handleFillDemo('staff2@demo.com')}
                 style={{
                   background: '#ffffff',
-                  border: '1px solid #e5e7eb',
+                  border: '1px solid #e2e8f0',
                   borderRadius: '9999px',
                   padding: '0.45rem 1rem',
                   fontSize: '0.825rem',
-                  color: '#374151',
+                  color: '#334155',
                   fontWeight: 500,
                   cursor: 'pointer',
                   boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
                   transition: 'all 0.15s ease',
                 }}
                 onMouseOver={(e) => {
-                  e.currentTarget.style.borderColor = '#ff5a1f';
-                  e.currentTarget.style.color = '#ff5a1f';
+                  e.currentTarget.style.borderColor = '#2563eb';
+                  e.currentTarget.style.color = '#2563eb';
+                  e.currentTarget.style.background = '#eff6ff';
                 }}
                 onMouseOut={(e) => {
-                  e.currentTarget.style.borderColor = '#e5e7eb';
-                  e.currentTarget.style.color = '#374151';
+                  e.currentTarget.style.borderColor = '#e2e8f0';
+                  e.currentTarget.style.color = '#334155';
+                  e.currentTarget.style.background = '#ffffff';
                 }}
               >
                 staff2@demo.com
@@ -440,23 +446,25 @@ export default function LoginPage() {
                 onClick={() => handleFillDemo('admin@demo.com')}
                 style={{
                   background: '#ffffff',
-                  border: '1px solid #e5e7eb',
+                  border: '1px solid #e2e8f0',
                   borderRadius: '9999px',
                   padding: '0.45rem 1rem',
                   fontSize: '0.825rem',
-                  color: '#374151',
+                  color: '#334155',
                   fontWeight: 500,
                   cursor: 'pointer',
                   boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
                   transition: 'all 0.15s ease',
                 }}
                 onMouseOver={(e) => {
-                  e.currentTarget.style.borderColor = '#ff5a1f';
-                  e.currentTarget.style.color = '#ff5a1f';
+                  e.currentTarget.style.borderColor = '#2563eb';
+                  e.currentTarget.style.color = '#2563eb';
+                  e.currentTarget.style.background = '#eff6ff';
                 }}
                 onMouseOut={(e) => {
-                  e.currentTarget.style.borderColor = '#e5e7eb';
-                  e.currentTarget.style.color = '#374151';
+                  e.currentTarget.style.borderColor = '#e2e8f0';
+                  e.currentTarget.style.color = '#334155';
+                  e.currentTarget.style.background = '#ffffff';
                 }}
               >
                 admin@demo.com
